@@ -1,0 +1,17 @@
+# Ambiente local
+.venv/
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# IDE
+.vscode/

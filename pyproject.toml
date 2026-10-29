@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "investimentos"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas",
+    "sqlalchemy>=2.0",
+    "psycopg[binary]",
+    "matplotlib",
+    "python-dotenv",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
