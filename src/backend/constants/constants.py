@@ -8,7 +8,7 @@ TIPO_SAIDA = {VENDA}
 # -------------------------------------------------------------------
 
 # Colunas obrigatórias para o cálculo do livro de operações
-COLUNAS_OPERACOES = ["ativo_id", "tipo", "data",
+COLUNAS_OPERACOES = ["ativo_id", "ticker", "tipo", "data",
                      "quantidade", "preco_unitario", "taxas"]
 
 # Colunas obrigatórias para o cálcuclo de posição atual

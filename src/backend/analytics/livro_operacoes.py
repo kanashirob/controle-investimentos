@@ -38,7 +38,7 @@ def build_book(operacoes: pd.DataFrame) -> pd.DataFrame:
 
     # Ordena por ativo, por data  e, no mesmo dia, entradas antes das saídas
     df['_ordem'] = (~is_entrada).astype(int)  # 0 para entradas, 1 para saídas
-    df = df.sort_values(['ativo_id', 'data', '_ordem'],
+    df = df.sort_values(['ativo_id', 'ticker', 'data', '_ordem'],
                         # ordena por ativo, data e, em caso de empate, por _ordem (entradas(0) antes das saídas(1))
                         kind='stable').reset_index(drop=True)
     state = {}  # {ativo: (quantidade, custo_total)}
