@@ -75,3 +75,47 @@ def current_position(
     if not incluir_zerados:
         df = df[df["quantidade"] > 0]
     return df.sort_values("ticker").reset_index(drop=True)[colunas_saida]
+
+
+def monthly_position(
+        ativos: pd.DataFrame,
+        operacoes: pd.DataFrame,
+        cotacoes: pd.DataFrame,
+        incluir_zerados: bool = False) -> pd.DataFrame:
+    """ Uma linha por ativo para cada fechamento de mês
+        colunas: ticker, data, quantidade, preco_fechamento, valor_fechamento, preco_medio, valor_investido"""
+
+    validate_required_columns(ativos, constants.COLUNAS_ATIVOS, "ativos")
+    validate_required_columns(
+        cotacoes, constants.COLUNAS_COTACOES, "cotacoes")
+
+    colunas_saida = [
+        "ticker",
+        "data",
+        "quantidade",
+        "preco_fechamento",
+        "valor_fechamento",
+        "preco_medio",
+        "valor_investido"
+    ]
+
+    livro = build_book(operacoes)
+    if livro.empty:
+        return pd.DataFrame(columns=colunas_saida)
+
+    cotacoes_mes = cotacoes.sort_values(
+        ["data", "ativo_id"], kind="stable").copy()
+    cotacoes_mes["mes"] = cotacoes_mes["data"].dt.to_period("M")
+    livro_por_data = (livro[["ativo_id", "data", "quantidade_apos"]].sort_values(
+        ["data", "ativo_id"]))
+    posicao_mensal = pd.merge_asof(
+        cotacoes_mes, livro_por_data, on="data", by="ativo_id", direction="backward")
+    posicao_mensal["quantidade_apos"] = (
+        posicao_mensal["quantidade_apos"].fillna(0))
+    posicao_mensal = posicao_mensal[posicao_mensal["quantidade_apos"] > 0]
+    tickers = ativos.set_index("ativo_id")["ticker"]
+    posicao_mensal["ticker"] = posicao_mensal["ativo_id"].map(tickers)
+    posicao_mensal = posicao_mensal.drop(columns="ativo_id")
+    posicao_mensal = posicao_mensal[["ticker",
+                                    "data", "preco_fechamento", "quantidade_apos"]]
+    return print(posicao_mensal)
