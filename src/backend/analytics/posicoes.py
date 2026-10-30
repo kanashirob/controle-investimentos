@@ -140,6 +140,4 @@ def monthly_position(
         cotacoes_mes["preco_medio"]
     if not incluir_zerados:
         cotacoes_mes = cotacoes_mes[cotacoes_mes["quantidade"] > 0]
-    cotacoes_mes.sort_values("data").reset_index(drop=True)[colunas_saida]
-
-    return print(cotacoes_mes)
+    return cotacoes_mes.sort_values("data").reset_index(drop=True)[colunas_saida]
