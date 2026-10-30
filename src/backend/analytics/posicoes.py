@@ -13,7 +13,7 @@ def current_position(
         ativos: pd.DataFrame,
         operacoes: pd.DataFrame,
         cotacoes: pd.DataFrame,
-        incluir_zerados: bool = False) -> pd.DataFrame:
+        incluir_zerados: bool = True) -> pd.DataFrame:
     """Uma linha por ativo: quantidade, preço médio, valor investido, valor atual e resultado.
 
     O preço atual é a cotação mais recente de cada ativo. Sem cotação, os campos de valor atual e resultado ficam vazios (NaN) em vez de inventar um número.
@@ -29,8 +29,8 @@ def current_position(
                      "preco_atual",
                      "data_cotacao",
                      "valor_atual",
-                     "resultado",
-                     "resultado_pct",
+                     #  "resultado", # Em avaliação se faz sentido ficar aqui ou na posição mensal
+                     #  "resultado_pct", # Em avaliação se faz sentido ficar aqui ou na posição mensal
                      "lucro_realizado"]
 
     livro = build_book(operacoes)
@@ -76,13 +76,15 @@ def current_position(
         df = df[df["quantidade"] > 0]
     return df.sort_values("ticker").reset_index(drop=True)[colunas_saida]
 
+# TODO: Incluir resultado e resultado pct no monthly position
+
 
 def monthly_position(
         ativos: pd.DataFrame,
         operacoes: pd.DataFrame,
         cotacoes: pd.DataFrame,
         incluir_zerados: bool = False) -> pd.DataFrame:
-    """ Uma linha por ativo para cada fechamento de mês
+    """ Uma linha por ativo para cada fechamento de mês, começando pelo mês da primeira compra até zerar a posição deste ativo.
         colunas: ticker, data, quantidade, preco_fechamento, valor_fechamento, preco_medio, valor_investido"""
 
     validate_required_columns(ativos, constants.COLUNAS_ATIVOS, "ativos")
@@ -91,8 +93,8 @@ def monthly_position(
 
     colunas_saida = [
         "ticker",
-        "data",
         "quantidade",
+        "data",
         "preco_fechamento",
         "valor_fechamento",
         "preco_medio",
@@ -103,19 +105,41 @@ def monthly_position(
     if livro.empty:
         return pd.DataFrame(columns=colunas_saida)
 
-    cotacoes_mes = cotacoes.sort_values(
-        ["data", "ativo_id"], kind="stable").copy()
-    cotacoes_mes["mes"] = cotacoes_mes["data"].dt.to_period("M")
-    livro_por_data = (livro[["ativo_id", "data", "quantidade_apos"]].sort_values(
-        ["data", "ativo_id"]))
-    posicao_mensal = pd.merge_asof(
-        cotacoes_mes, livro_por_data, on="data", by="ativo_id", direction="backward")
-    posicao_mensal["quantidade_apos"] = (
-        posicao_mensal["quantidade_apos"].fillna(0))
-    posicao_mensal = posicao_mensal[posicao_mensal["quantidade_apos"] > 0]
-    tickers = ativos.set_index("ativo_id")["ticker"]
-    posicao_mensal["ticker"] = posicao_mensal["ativo_id"].map(tickers)
-    posicao_mensal = posicao_mensal.drop(columns="ativo_id")
-    posicao_mensal = posicao_mensal[["ticker",
-                                    "data", "preco_fechamento", "quantidade_apos"]]
-    return print(posicao_mensal)
+    # Ordenando as cotações por ativo e mês
+    cotacoes_mes = cotacoes.sort_values(["data", "ativo_id"]).copy()
+    cotacoes_mes["mes"] = cotacoes_mes["data"].dt.to_period(
+        "M")  # Criando uma coluna para indicar o mês
+    # Agrupando as cotações por ativo e mês e pegando a última cotação de cada ativo/mês
+    cotacoes_mes = cotacoes_mes.loc[cotacoes_mes.groupby(["ativo_id", "mes"])[
+        "data"].idxmax()]
+    cotacoes_mes = cotacoes_mes.drop(columns=["mes"])  # Excluindo coluna mês
+    cotacoes_mes = cotacoes_mes.reset_index(drop=True)  # Redefine os índices
+    livro_por_data = livro[["ativo_id", "data", "quantidade_apos", "preco_medio_apos"]].sort_values(
+        ["data", "ativo_id"]).drop_duplicates(["ativo_id", "data"], keep="last")
+    cotacoes_mes = cotacoes_mes.sort_values(
+        ["data", "ativo_id"], kind="stable").reset_index(drop=True)
+    cotacoes_mes = pd.merge_asof(
+        cotacoes_mes,
+        livro_por_data,
+        on="data",
+        by="ativo_id",
+        direction="backward"
+    )
+    cotacoes_mes["quantidade_apos"] = (
+        cotacoes_mes["quantidade_apos"].fillna(0))
+    cotacoes_mes["preco_medio_apos"] = (
+        cotacoes_mes["preco_medio_apos"].fillna(0))
+    cotacoes_mes = cotacoes_mes.rename(columns={
+        "data_cotacao": "data",
+        "quantidade_apos": "quantidade",
+        "preco_medio_apos": "preco_medio"
+    })
+    cotacoes_mes["valor_fechamento"] = cotacoes_mes["quantidade"] * \
+        cotacoes_mes["preco_fechamento"]
+    cotacoes_mes["valor_investido"] = cotacoes_mes["quantidade"] * \
+        cotacoes_mes["preco_medio"]
+    if not incluir_zerados:
+        cotacoes_mes = cotacoes_mes[cotacoes_mes["quantidade"] > 0]
+    cotacoes_mes.sort_values("data").reset_index(drop=True)[colunas_saida]
+
+    return print(cotacoes_mes)

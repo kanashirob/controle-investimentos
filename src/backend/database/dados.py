@@ -54,8 +54,9 @@ def load_operacoes(engine: Engine) -> pd.DataFrame:
 
 def load_cotacoes(engine: Engine) -> pd.DataFrame:
     sql = """
-        select id_ativos as ativo_id, data_cotacao as data, preco_fechamento
-        from investimentos.cotacoes
+        select c.id_ativos as ativo_id, a.ticker, c.data_cotacao as data, c.preco_fechamento
+        from investimentos.cotacoes c
+        join investimentos.ativos a using(id_ativos)
         order by id_ativos, data_cotacao
     """
     df = pd.read_sql(sql, engine)
