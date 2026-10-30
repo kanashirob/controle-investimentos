@@ -13,7 +13,7 @@ def current_position(
         ativos: pd.DataFrame,
         operacoes: pd.DataFrame,
         cotacoes: pd.DataFrame,
-        incluir_zerados: bool = True) -> pd.DataFrame:
+        incluir_zerados: bool = False) -> pd.DataFrame:
     """Uma linha por ativo: quantidade, preço médio, valor investido, valor atual e resultado.
 
     O preço atual é a cotação mais recente de cada ativo. Sem cotação, os campos de valor atual e resultado ficam vazios (NaN) em vez de inventar um número.
