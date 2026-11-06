@@ -4,9 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "investimentos"
-version = "0.1.0"
+version = "0.1.1"
 requires-python = ">=3.10"
 dependencies = [
+    "fastapi",
+    "uvicorn",
     "pandas",
     "sqlalchemy>=2.0",
     "psycopg[binary]",

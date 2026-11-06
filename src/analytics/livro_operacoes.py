@@ -3,8 +3,8 @@
 import numpy as np
 import pandas as pd
 
-from backend.constants import constants
-from backend.utils.dataframe_validation import validate_required_columns
+from constants import constants
+from utils.dataframe_validation import validate_required_columns
 
 _EPS = 1e-9  # tolerância para erros de arredondamento
 

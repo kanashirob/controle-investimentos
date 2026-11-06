@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 
 
-from backend.constants import constants
-from backend.utils.dataframe_validation import validate_required_columns
-from backend.analytics.livro_operacoes import build_book
+from constants import constants
+from utils.dataframe_validation import validate_required_columns
+from analytics.livro_operacoes import build_book
 
 
 def current_position(
