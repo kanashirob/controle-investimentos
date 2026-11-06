@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from api.routers import health, posicoes
 
 tags_metadata = [
-    {"name": "Saúde", "description": "Verifica se o servidor está de pé."},
+    {"name": "Saúde", "description": "Verifica se o servidor está funcionando."},
     {"name": "Posições", "description": "Posição atual e evolução mensal da carteira."},
 ]
 
