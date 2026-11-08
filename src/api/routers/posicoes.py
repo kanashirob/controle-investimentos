@@ -1,8 +1,7 @@
 from fastapi import APIRouter
-from src.utils import dataframe_to_json
-from src.database import dados
-from src.api.dependencies import EngineDep, DadosDep
-from src.analytics import posicoes
+from utils import dataframe_to_json
+from api.dependencies import DadosDep
+from analytics import posicoes
 
 
 router = APIRouter(prefix="/api/posicoes", tags=["Posições"])

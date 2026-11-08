@@ -5,8 +5,8 @@ import pandas as pd
 
 
 from constants import constants
-from utils.dataframe_validation import validate_required_columns
-from analytics.livro_operacoes import build_book
+from utils import dataframe_validation
+from analytics import livro_operacoes
 
 
 def current_position(
@@ -18,8 +18,10 @@ def current_position(
 
     O preço atual é a cotação mais recente de cada ativo. Sem cotação, os campos de valor atual e resultado ficam vazios (NaN) em vez de inventar um número.
     """
-    validate_required_columns(ativos, constants.COLUNAS_ATIVOS, "ativos")
-    validate_required_columns(cotacoes, constants.COLUNAS_COTACOES, "cotacoes")
+    dataframe_validation.validate_required_columns(
+        ativos, constants.COLUNAS_ATIVOS, "ativos")
+    dataframe_validation.validate_required_columns(
+        cotacoes, constants.COLUNAS_COTACOES, "cotacoes")
 
     colunas_saida = ["ticker",
                      "classe",
@@ -33,7 +35,7 @@ def current_position(
                      #  "resultado_pct", # Em avaliação se faz sentido ficar aqui ou na posição mensal
                      "lucro_realizado"]
 
-    livro = build_book(operacoes)
+    livro = livro_operacoes.build_book(operacoes)
     if livro.empty:
         return pd.DataFrame(columns=colunas_saida)
     # situação de cada ativo depois da última operação
@@ -85,8 +87,9 @@ def monthly_position(
     """ Uma linha por ativo para cada fechamento de mês, começando pelo mês da primeira compra até zerar a posição deste ativo.
         colunas: ticker, data, quantidade, preco_fechamento, valor_fechamento, preco_medio, valor_investido"""
 
-    validate_required_columns(ativos, constants.COLUNAS_ATIVOS, "ativos")
-    validate_required_columns(
+    dataframe_validation.validate_required_columns(
+        ativos, constants.COLUNAS_ATIVOS, "ativos")
+    dataframe_validation.validate_required_columns(
         cotacoes, constants.COLUNAS_COTACOES, "cotacoes")
 
     colunas_saida = [
@@ -101,7 +104,7 @@ def monthly_position(
         "resultado_pct"
     ]
 
-    livro = build_book(operacoes)
+    livro = livro_operacoes.build_book(operacoes)
     if livro.empty:
         return pd.DataFrame(columns=colunas_saida)
 

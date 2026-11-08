@@ -2,7 +2,7 @@ from functools import lru_cache
 from typing import Annotated
 from fastapi import Depends
 from sqlalchemy import Engine
-from src.database import dados
+from database import dados
 from dataclasses import dataclass
 
 import pandas as pd

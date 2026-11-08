@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from constants import constants
-from utils.dataframe_validation import validate_required_columns
+from utils import dataframe_validation
 
 _EPS = 1e-9  # tolerância para erros de arredondamento
 
@@ -22,7 +22,7 @@ def build_book(operacoes: pd.DataFrame) -> pd.DataFrame:
     """
 
     # Validar se as colunas obrigatórias estão presentes.
-    validate_required_columns(
+    dataframe_validation.validate_required_columns(
         operacoes, constants.COLUNAS_OPERACOES, "operacoes")
     df = operacoes.copy()
     invalidos = set(df["tipo"]) - constants.TIPO_ENTRADA - constants.TIPO_SAIDA
