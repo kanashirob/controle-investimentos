@@ -76,8 +76,6 @@ def current_position(
         df = df[df["quantidade"] > 0]
     return df.sort_values("ticker").reset_index(drop=True)[colunas_saida]
 
-# TODO: Incluir resultado e resultado pct no monthly position
-
 
 def monthly_position(
         ativos: pd.DataFrame,
@@ -98,7 +96,9 @@ def monthly_position(
         "preco_fechamento",
         "valor_fechamento",
         "preco_medio",
-        "valor_investido"
+        "valor_investido",
+        "resultado",
+        "resultado_pct"
     ]
 
     livro = build_book(operacoes)
@@ -138,6 +138,10 @@ def monthly_position(
         cotacoes_mes["preco_fechamento"]
     cotacoes_mes["valor_investido"] = cotacoes_mes["quantidade"] * \
         cotacoes_mes["preco_medio"]
+    cotacoes_mes["resultado"] = cotacoes_mes["valor_fechamento"] - \
+        cotacoes_mes["valor_investido"]
+    cotacoes_mes["resultado_pct"] = (cotacoes_mes["resultado"] / cotacoes_mes["valor_investido"]
+                                     ) * 100 if cotacoes_mes["valor_investido"].sum() != 0 else 0
     if not incluir_zerados:
         cotacoes_mes = cotacoes_mes[cotacoes_mes["quantidade"] > 0]
     return cotacoes_mes.sort_values("data").reset_index(drop=True)[colunas_saida]

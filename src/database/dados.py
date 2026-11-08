@@ -65,9 +65,9 @@ def load_cotacoes(engine: Engine) -> pd.DataFrame:
 
 def load_aportes(engine: Engine) -> pd.DataFrame:
     sql = """
-        select if.nome as instituicao_financeiria, a.data_aporte, a.valor_aporte
+        select inst_f.nome as instituicao_financeira, a.data_aporte, a.valor_aporte
         from investimentos.aportes a
-        join investimentos.instituicao_financeira if using(id_inst_financeira)
+        join investimentos.instituicao_financeira inst_f using(id_inst_financeira)
         order by data_aporte
     """
     df = pd.read_sql(sql, engine)
